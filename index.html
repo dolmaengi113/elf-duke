@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>엘프 공작님이 제게 반했다고요?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,500;1,600&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FBF8F2;
+    --bg-soft: #F4EFE4;
+    --sage: #7C9473;
+    --sage-deep: #4F6B4A;
+    --sage-pale: #DCE5D6;
+    --gold: #B8935A;
+    --gold-bright: #D8B478;
+    --ink: #2E2C26;
+    --ink-soft: #6B6659;
+    --blush: #E6A2AC;
+    --line: rgba(46,44,38,0.12);
+    --shadow: 0 20px 60px rgba(60,55,40,0.12);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Pretendard','Noto Sans KR',sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    overflow-x:hidden;
+  }
+  ::selection{ background:var(--sage-pale); color:var(--sage-deep); }
+
+  .serif{ font-family:'Noto Serif KR', serif; }
+  .accent-num{ font-family:'Cormorant Garamond', serif; font-style:italic; }
+
+  /* ---------- scrollbar ---------- */
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background:var(--sage-pale); border-radius:8px; }
+
+  /* ================= INTRO GATE ================= */
+  #gate{
+    position:fixed; inset:0; z-index:100;
+    display:flex; align-items:center; justify-content:center;
+    background:#F6EFDF;
+    transition:opacity 1.1s ease, visibility 1.1s ease;
+  }
+  #gate.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
+  #gate::before{
+    content:''; position:absolute; inset:0;
+    background-image:url('assets/이르한_결혼식.png');
+    background-size:cover; background-position:50% 22%;
+    opacity:0.9;
+    animation:gateZoom 18s ease-in-out infinite alternate;
+  }
+  @keyframes gateZoom{ from{ transform:scale(1);} to{ transform:scale(1.08);} }
+  #gate::after{
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse at 50% 34%, rgba(255,251,240,0.06) 0%, rgba(250,241,219,0.58) 72%),
+               linear-gradient(180deg, rgba(250,242,222,0.55) 0%, rgba(250,242,222,0.12) 30%, rgba(246,239,223,0.88) 100%);
+  }
+  .gate-petals{ position:absolute; inset:0; z-index:1; pointer-events:none; overflow:hidden; }
+  .petal{
+    position:absolute; top:-8%; font-size:18px; color:#fff; opacity:0.85;
+    animation:petalFall linear infinite;
+    filter:drop-shadow(0 2px 4px rgba(150,120,60,0.25));
+  }
+  @keyframes petalFall{
+    from{ transform:translateY(-10vh) translateX(0) rotate(0deg); }
+    to{ transform:translateY(110vh) translateX(var(--drift,40px)) rotate(300deg); }
+  }
+  .gate-inner{
+    position:relative; z-index:2; text-align:center; color:#3c3629;
+    padding:0 24px;
+    animation:gateFadeIn 1.6s ease both;
+  }
+  @keyframes gateFadeIn{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+  .gate-eyebrow{
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-size:15px;
+    letter-spacing:0.32em; color:var(--gold); margin-bottom:22px;
+    text-transform:uppercase;
+  }
+  .gate-title{
+    font-family:'Noto Serif KR', serif; font-weight:600;
+    font-size:clamp(28px, 5vw, 50px); line-height:1.4; letter-spacing:-0.01em;
+    color:#332f24;
+    text-shadow:0 2px 24px rgba(255,255,255,0.6);
+  }
+  .gate-title em{ font-style:normal; color:var(--sage-deep); }
+  .gate-sub{
+    margin-top:18px; font-size:15px; letter-spacing:0.02em; color:#5c5644; opacity:0.9;
+  }
+  .gate-enter{
+    margin-top:56px; display:inline-flex; align-items:center; gap:14px;
+    padding:15px 38px; border:1px solid rgba(184,147,90,0.55);
+    border-radius:2px; background:rgba(255,255,255,0.55);
+    color:var(--gold); letter-spacing:0.28em; font-size:13px;
+    cursor:pointer; transition:all .4s ease; text-transform:uppercase;
+    box-shadow:0 8px 24px rgba(184,147,90,0.15);
+  }
+  .gate-enter:hover{ background:#fff; border-color:var(--gold); letter-spacing:0.36em; }
+  .gate-enter svg{ width:14px; height:14px; transition:transform .4s ease; }
+  .gate-enter:hover svg{ transform:translateX(4px); }
+  .gate-arch{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .gate-arch svg{ width:min(92vw, 680px); height:auto; opacity:0.6; }
+
+  #site{ opacity:0; transition:opacity .8s ease .3s; }
+  #site.show{ opacity:1; }
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:60;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 5vw; background:rgba(251,248,242,0.86);
+    backdrop-filter:blur(10px); border-bottom:1px solid var(--line);
+  }
+  .nav-logo{ font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:600; font-size:19px; letter-spacing:0.02em; color:var(--sage-deep); display:flex; align-items:baseline; gap:8px; }
+  .nav-logo .nav-logo-kr{ font-family:'Pretendard',sans-serif; font-style:normal; font-size:10.5px; letter-spacing:0.06em; color:var(--ink-soft); font-weight:500; }
+  .nav-tabs{ display:flex; gap:6px; }
+  .nav-tab{
+    font-size:14px; letter-spacing:0.05em; padding:9px 20px; border-radius:999px;
+    color:var(--ink-soft); cursor:pointer; transition:all .3s ease; border:1px solid transparent;
+    font-weight:500;
+  }
+  .nav-tab:hover{ color:var(--sage-deep); }
+  .nav-tab.active{ background:var(--sage-deep); color:#fff; }
+  .nav-burger{
+    display:none; width:38px; height:38px; border-radius:50%; border:1px solid var(--line);
+    background:var(--bg); align-items:center; justify-content:center; cursor:pointer; flex-direction:column; gap:4px;
+  }
+  .nav-burger span{ width:16px; height:1.5px; background:var(--sage-deep); display:block; transition:all .3s ease; }
+  .nav-burger.open span:nth-child(1){ transform:translateY(5.5px) rotate(45deg); }
+  .nav-burger.open span:nth-child(2){ opacity:0; }
+  .nav-burger.open span:nth-child(3){ transform:translateY(-5.5px) rotate(-45deg); }
+
+  /* ================= SECTIONS ================= */
+  main{ padding-top:64px; }
+  .panel{ display:none; min-height:100vh; }
+  .panel.active{ display:block; animation:panelIn .6s ease both; }
+  @keyframes panelIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+
+  .hero-band{
+    position:relative; height:46vh; min-height:340px;
+    display:flex; align-items:flex-end;
+    background-size:cover; background-position:center;
+    overflow:hidden;
+  }
+  .hero-band::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(20,22,15,0.15) 0%, rgba(20,22,15,0.75) 100%);
+  }
+  .hero-band-inner{ position:relative; z-index:2; padding:0 6vw 42px; color:#fdf9ef; width:100%; will-change:transform; }
+  .hero-eyebrow{ font-family:'Cormorant Garamond',serif; font-style:italic; font-size:14px; letter-spacing:0.3em; color:var(--gold-bright); text-transform:uppercase; margin-bottom:10px;}
+  .hero-title{ font-family:'Noto Serif KR',serif; font-weight:600; font-size:clamp(26px,4vw,42px); }
+  .hero-desc{ margin-top:10px; max-width:560px; font-size:14px; line-height:1.7; color:#e9e4d5; }
+
+  .section-wrap{ max-width:1080px; margin:0 auto; padding:70px 6vw 110px; }
+  .section-head{ margin-bottom:44px; }
+  .section-eyebrow{ font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--gold); font-size:15px; letter-spacing:0.24em; text-transform:uppercase; }
+  .section-title{ font-family:'Noto Serif KR',serif; font-weight:700; font-size:clamp(24px,3vw,34px); margin-top:8px; color:var(--sage-deep); }
+
+  /* ---------- 세계관: accordion ---------- */
+  .lore-item{
+    border-top:1px solid var(--line); padding:26px 4px;
+    cursor:pointer;
+  }
+  .lore-item:last-child{ border-bottom:1px solid var(--line); }
+  .lore-head{ display:flex; align-items:baseline; gap:18px; justify-content:space-between; }
+  .lore-file{ font-family:'Cormorant Garamond',serif; font-style:italic; font-size:14px; color:var(--gold); letter-spacing:0.1em; min-width:98px; }
+  .lore-name{ font-family:'Noto Serif KR',serif; font-weight:600; font-size:19px; flex:1; color:var(--ink); }
+  .lore-plus{ font-size:20px; color:var(--sage); transition:transform .35s ease; font-weight:300; }
+  .lore-item.open .lore-plus{ transform:rotate(135deg); }
+  .lore-body{
+    max-height:0; overflow:hidden; transition:max-height .5s ease, padding .5s ease;
+    font-size:14.5px; line-height:1.85; color:var(--ink-soft);
+  }
+  .lore-item.open .lore-body{ max-height:400px; padding-top:16px; }
+  .lore-body p + p{ margin-top:10px; }
+
+  .loc-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .loc-card{
+    position:relative; aspect-ratio:4/3; border-radius:8px; overflow:hidden;
+    background-size:cover; background-position:center; box-shadow:var(--shadow);
+    border:1px solid var(--line); transition:transform .4s ease;
+  }
+  .loc-card:hover{ transform:translateY(-4px); }
+  .loc-card::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(20,20,15,0) 40%, rgba(20,20,15,0.82) 100%); }
+  .loc-cap{ position:absolute; left:0; right:0; bottom:0; z-index:2; padding:13px 15px; color:#fdf9ef; }
+  .loc-name{ font-family:'Noto Serif KR',serif; font-weight:700; font-size:15px; }
+  .loc-desc{ font-size:11px; color:#e9e4d5; margin-top:3px; line-height:1.4; }
+
+  /* ---------- 인물 ---------- */
+  .cast-group{ margin-bottom:56px; }
+  .cast-group-title{ font-size:13px; letter-spacing:0.2em; color:var(--sage); text-transform:uppercase; margin-bottom:18px; font-weight:600; }
+  .cast-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:18px; }
+  .cast-grid.small{ grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); }
+  .cast-card{
+    position:relative; border-radius:6px; overflow:hidden; cursor:pointer;
+    aspect-ratio:3/4; box-shadow:var(--shadow); transition:transform .4s ease, box-shadow .4s ease;
+    border:1px solid var(--line);
+    opacity:0; transform:translateY(24px) scale(0.97);
+  }
+  .cast-card.in{ opacity:1; transform:translateY(0) scale(1); transition:opacity .6s ease, transform .6s cubic-bezier(.2,.8,.3,1); }
+  .cast-grid.small .cast-card{ aspect-ratio:1/1; }
+  .cast-card:hover{ transform:translateY(-7px) rotate(-0.6deg); box-shadow:0 26px 50px rgba(60,55,40,0.2); }
+  .cast-card img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform .5s ease; }
+  .cast-card:hover img{ transform:scale(1.06); }
+  .cast-card::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(20,20,15,0) 45%, rgba(20,20,15,0.82) 100%); }
+  .cast-info{ position:absolute; left:0; right:0; bottom:0; z-index:2; padding:14px 16px; color:#fdf9ef; }
+  .cast-name{ font-family:'Noto Serif KR',serif; font-weight:700; font-size:17px; }
+  .cast-grid.small .cast-name{ font-size:14px; }
+  .cast-tag{ font-size:11.5px; color:var(--gold-bright); margin-top:3px; letter-spacing:0.02em; }
+  .cast-main-badge{
+    position:absolute; top:12px; left:12px; z-index:3;
+    font-size:10.5px; letter-spacing:0.16em; padding:5px 11px; border-radius:999px;
+    background:rgba(253,249,239,0.92); color:var(--sage-deep); font-weight:700;
+  }
+
+  /* modal */
+  #char-modal{
+    position:fixed; inset:0; z-index:90; display:none;
+    align-items:center; justify-content:center; padding:24px;
+    background:rgba(20,20,15,0.62); backdrop-filter:blur(4px);
+  }
+  #char-modal.show{ display:flex; animation:modalFade .3s ease both; }
+  @keyframes modalFade{ from{opacity:0;} to{opacity:1;} }
+  .modal-card{
+    background:var(--bg); max-width:560px; width:100%; border-radius:8px;
+    overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,0.35);
+    max-height:88vh; overflow-y:auto;
+    animation:modalUp .4s cubic-bezier(.2,.8,.3,1) both;
+  }
+  @keyframes modalUp{ from{opacity:0; transform:translateY(24px) scale(0.98);} to{opacity:1; transform:translateY(0) scale(1);} }
+  .modal-img{ width:100%; aspect-ratio:16/6; object-fit:cover; display:block; }
+  .modal-body{ padding:26px 30px 32px; position:relative; }
+  .modal-close{
+    position:absolute; top:16px; right:16px; width:34px; height:34px; border-radius:50%;
+    background:rgba(20,20,15,0.55); color:#fff; border:none; cursor:pointer;
+    font-size:16px; display:flex; align-items:center; justify-content:center; z-index:5;
+  }
+  .modal-name{ font-family:'Noto Serif KR',serif; font-weight:700; font-size:24px; color:var(--sage-deep); }
+  .modal-meta{ font-size:13px; color:var(--ink-soft); margin-top:6px; letter-spacing:0.02em; }
+  .modal-desc{ margin-top:18px; font-size:14.5px; line-height:1.85; color:var(--ink); }
+  .modal-quote{
+    margin-top:18px; padding:14px 16px; border-left:2px solid var(--gold); background:var(--bg-soft);
+    font-family:'Noto Serif KR',serif; font-size:14px; color:var(--sage-deep); line-height:1.7;
+  }
+
+  /* ---------- 시스템: 빗장 게이지 ---------- */
+  .sys-hero{
+    position:relative; border-radius:12px; overflow:hidden; margin-bottom:52px;
+    min-height:260px; display:flex; align-items:center; padding:40px;
+    background-size:cover; background-position:center;
+  }
+  .sys-hero::after{ content:''; position:absolute; inset:0; background:linear-gradient(120deg, rgba(20,22,15,0.72) 20%, rgba(20,22,15,0.25) 90%); }
+  .sys-hero-text{ position:relative; z-index:2; max-width:520px; color:#fdf9ef; }
+  .sys-hero-text .section-eyebrow{ color:var(--gold-bright); }
+  .sys-hero-text .section-title{ color:#fff; }
+  .sys-hero-text p{ margin-top:14px; font-size:14px; line-height:1.8; color:#e9e4d5; }
+
+  .gauge-box{
+    border:1px solid var(--line); border-radius:12px; padding:46px 6vw 52px;
+    background:var(--bg-soft);
+    text-align:center;
+    position:relative; overflow:hidden;
+  }
+  .gauge-bg{
+    position:absolute; inset:0; background-size:cover; background-position:center;
+    opacity:0.16; transition:opacity 1s ease, filter 1s ease;
+    filter:grayscale(0.5);
+  }
+  .gauge-content{ position:relative; z-index:2; }
+  .gauge-label{ font-size:12.5px; letter-spacing:0.24em; color:var(--sage); text-transform:uppercase; margin-bottom:20px; font-weight:600; }
+  .gauge-hearts{ font-size:clamp(30px,5vw,44px); letter-spacing:8px; margin-bottom:28px; transition:letter-spacing .3s ease; }
+  .gauge-line-wrap{ max-width:520px; margin:0 auto 34px; }
+  input[type="range"]{
+    width:100%; height:6px; border-radius:6px; appearance:none; -webkit-appearance:none;
+    background:linear-gradient(90deg, #2e2c26, var(--blush));
+    outline:none; cursor:pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:22px; height:22px; border-radius:50%;
+    background:var(--bg); border:3px solid var(--sage-deep); cursor:grab;
+    box-shadow:0 3px 10px rgba(0,0,0,0.25);
+  }
+  input[type="range"]::-moz-range-thumb{
+    width:22px; height:22px; border-radius:50%; background:var(--bg);
+    border:3px solid var(--sage-deep); cursor:grab; box-shadow:0 3px 10px rgba(0,0,0,0.25);
+  }
+  .gauge-quote{
+    min-height:64px; display:flex; align-items:center; justify-content:center;
+    font-family:'Noto Serif KR',serif; font-size:clamp(17px,2.4vw,22px);
+    color:var(--ink); transition:opacity .3s ease; padding:0 12px;
+  }
+  .gauge-quote.blur{ filter:blur(3px); opacity:0.55; }
+  .gauge-note{ margin-top:22px; font-size:12.5px; color:var(--ink-soft); }
+  .gauge-special{
+    margin-top:6px; font-size:12px; letter-spacing:0.1em; color:var(--gold); font-family:'Cormorant Garamond',serif; font-style:italic; opacity:0; transition:opacity .6s ease;
+  }
+  .gauge-special.show{ opacity:1; }
+
+  .stage-legend{
+    display:flex; justify-content:center; gap:10px; margin-top:36px; flex-wrap:wrap;
+  }
+  .stage-dot{
+    font-size:11px; padding:6px 12px; border-radius:999px; border:1px solid var(--line);
+    color:var(--ink-soft); background:var(--bg);
+  }
+
+  footer{ text-align:center; padding:44px 20px 60px; font-size:12px; color:var(--ink-soft); border-top:1px solid var(--line); margin-top:40px; }
+  footer .accent-num{ color:var(--gold); }
+
+  /* ---------- 갤러리 ---------- */
+  .gallery-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+  .gallery-item{
+    position:relative; border-radius:8px; overflow:hidden; cursor:pointer;
+    aspect-ratio:4/5; box-shadow:var(--shadow); border:1px solid var(--line);
+    opacity:0; transform:translateY(24px) scale(0.97);
+  }
+  .gallery-item.in{ opacity:1; transform:translateY(0) scale(1); transition:opacity .6s ease, transform .6s cubic-bezier(.2,.8,.3,1); }
+  .gallery-item img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform .6s ease; }
+  .gallery-item:hover img{ transform:scale(1.05); }
+  .gallery-item::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(20,20,15,0) 55%, rgba(20,20,15,0.78) 100%); }
+  .gallery-cap{ position:absolute; left:0; right:0; bottom:0; z-index:2; padding:16px 18px; color:#fdf9ef; }
+  .gallery-cap .g-title{ font-family:'Noto Serif KR',serif; font-weight:700; font-size:16px; }
+  .gallery-cap .g-sub{ font-size:11.5px; color:var(--gold-bright); margin-top:2px; letter-spacing:0.05em; }
+  #lightbox{
+    position:fixed; inset:0; z-index:95; display:none; align-items:center; justify-content:center;
+    background:rgba(10,10,8,0.88); padding:24px;
+  }
+  #lightbox.show{ display:flex; animation:modalFade .3s ease both; }
+  #lightbox img{ max-width:min(90vw,820px); max-height:84vh; border-radius:6px; box-shadow:0 30px 80px rgba(0,0,0,0.5); }
+  .lightbox-close{
+    position:fixed; top:22px; right:26px; width:40px; height:40px; border-radius:50%;
+    background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); color:#fff;
+    font-size:17px; cursor:pointer; z-index:2;
+  }
+
+  /* ---------- 스크롤 리빌 ---------- */
+  .reveal{ opacity:0; transform:translateY(26px); transition:opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1); }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+  .reveal-stagger.in > *{ opacity:1; transform:translateY(0); }
+
+  @media (max-width:900px){
+    .nav-tabs{
+      position:fixed; top:60px; right:5vw; left:5vw; z-index:59;
+      background:var(--bg); border:1px solid var(--line); border-radius:12px;
+      flex-direction:column; gap:2px; padding:10px; box-shadow:var(--shadow);
+      transform:translateY(-14px); opacity:0; visibility:hidden; pointer-events:none;
+      transition:all .3s ease;
+    }
+    .nav-tabs.open{ transform:translateY(0); opacity:1; visibility:visible; pointer-events:auto; }
+    .nav-tab{ width:100%; text-align:center; padding:12px; }
+    .nav-burger{ display:flex; }
+  }
+
+  @media (max-width:720px){
+    nav{ padding:14px 5vw; }
+    .gate-title{ font-size:26px; }
+    .hero-band{ min-height:280px; height:38vh; }
+    .section-wrap{ padding:52px 6vw 80px; }
+    .cast-grid{ grid-template-columns:repeat(2,1fr); }
+    .cast-grid.small{ grid-template-columns:repeat(3,1fr); }
+    .gallery-grid{ grid-template-columns:1fr; }
+    .loc-grid{ grid-template-columns:repeat(2,1fr); }
+    .gauge-box{ padding:34px 6vw 40px; }
+    .gauge-hearts{ letter-spacing:3px; }
+    .stage-legend{ gap:6px; }
+    .stage-dot{ font-size:10px; padding:5px 9px; }
+    .modal-body{ padding:20px 18px 26px; }
+    .sys-hero{ padding:26px; min-height:220px; }
+  }
+
+  @media (max-width:420px){
+    .cast-grid.small{ grid-template-columns:repeat(2,1fr); }
+    .gate-eyebrow{ font-size:12px; letter-spacing:0.24em; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= INTRO GATE ================= -->
+<div id="gate">
+  <div class="gate-petals" id="gatePetals"></div>
+  <div class="gate-arch">
+    <svg viewBox="0 0 680 780" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M40 780 V260 C40 110 180 20 340 20 C500 20 640 110 640 260 V780" stroke="#D8B478" stroke-width="1.2"/>
+      <path d="M70 780 V262 C70 128 190 48 340 48 C490 48 610 128 610 262 V780" stroke="#D8B478" stroke-width="0.6" opacity="0.55"/>
+    </svg>
+  </div>
+  <div class="gate-inner">
+    <div class="gate-eyebrow">Between the Vows</div>
+    <h1 class="gate-title">엘프 공작님이<br><em>제게 반했다고요?</em></h1>
+    <p class="gate-sub">정략결혼인데 신랑이 이미 저한테 반한 것 같습니다</p>
+    <div class="gate-enter" id="enterBtn">
+      Enter
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SITE ================= -->
+<div id="site">
+  <nav>
+    <div class="nav-logo">Between the Vows<span class="nav-logo-kr">— 행간의 진심</span></div>
+    <div class="nav-tabs" id="navTabs">
+      <div class="nav-tab active" data-tab="world">세계관</div>
+      <div class="nav-tab" data-tab="cast">인물</div>
+      <div class="nav-tab" data-tab="system">시스템</div>
+      <div class="nav-tab" data-tab="gallery">갤러리</div>
+    </div>
+    <div class="nav-burger" id="navBurger"><span></span><span></span><span></span></div>
+  </nav>
+
+  <main>
+    <!-- ===== 세계관 ===== -->
+    <section class="panel active" id="panel-world">
+      <div class="hero-band" style="background-image:url('assets/배경_왕성알현실.png');">
+        <div class="hero-band-inner">
+          <div class="hero-eyebrow">World · 실바나 왕국</div>
+          <div class="hero-title">오래 닫혔던 문이, 처음으로 열리다</div>
+          <p class="hero-desc">폐쇄를 원칙으로 삼아온 엘프 왕국 실바나가 대외 개방을 선언했다. 그 상징으로 성사된 하나의 결혼이, 지금 이 이야기의 시작이다.</p>
+        </div>
+      </div>
+
+      <div class="section-wrap">
+        <div class="section-head">
+          <div class="section-eyebrow">File Archive</div>
+          <div class="section-title">세계관 기록보관소</div>
+        </div>
+
+        <div class="lore-item open" data-idx="1">
+          <div class="lore-head">
+            <span class="lore-file">FILE-001</span>
+            <span class="lore-name">실바나 왕국</span>
+            <span class="lore-plus">+</span>
+          </div>
+          <div class="lore-body">
+            <p>대륙 서쪽, 오래된 숲 위에 세워진 엘프들의 나라. 오랜 세월 스스로 문을 걸어 잠그고 외부와의 접촉을 최소화해 온 폐쇄 정책의 나라였다.</p>
+            <p>왕이 아닌 여왕 단독 통치 체제를 유지하고 있으며, 현재는 셀레나 여왕이 왕국을 이끌고 있다. 개방 정책 역시 그녀가 직접 추진한 결정이다.</p>
+          </div>
+        </div>
+
+        <div class="lore-item" data-idx="2">
+          <div class="lore-head">
+            <span class="lore-file">FILE-002</span>
+            <span class="lore-name">개방 정책</span>
+            <span class="lore-plus">+</span>
+          </div>
+          <div class="lore-body">
+            <p>시대가 변하며 실바나 내부에서도 세대에 따라 의견이 갈리기 시작했다. 여왕은 결국 대외 개방을 선언했고, 궁정 안에는 이를 반기는 이들과 여전히 경계하는 이들이 공존한다.</p>
+            <p>오랫동안 원로들을 중심으로 폐쇄 정책이 유지되어 온 만큼, 개방을 반대하는 목소리 역시 조용하지만 분명히 존재한다.</p>
+          </div>
+        </div>
+
+        <div class="lore-item" data-idx="3">
+          <div class="lore-head">
+            <span class="lore-file">FILE-003</span>
+            <span class="lore-name">정략결혼</span>
+            <span class="lore-plus">+</span>
+          </div>
+          <div class="lore-body">
+            <p>개방 정책의 첫 상징적 사례로, 타종족인 {user}와 셀비에르 공작가의 당주 이르한의 결혼이 성사되었다. 궁정 안팎의 시선이 이 결혼에 쏠려 있다.</p>
+            <p>당사자인 이르한은 이 결혼을 철저히 "의무"로 받아들인 듯 냉정한 태도를 보인다. 적어도, 겉으로는.</p>
+          </div>
+        </div>
+
+        <div class="lore-item" data-idx="4">
+          <div class="lore-head">
+            <span class="lore-file">FILE-004</span>
+            <span class="lore-name">셀비에르 공작가</span>
+            <span class="lore-plus">+</span>
+          </div>
+          <div class="lore-body">
+            <p>개방파와 가까운 신흥 유력 귀족가로 알려져 있다. 최근 전 당주 부부가 이르한에게 작위를 물려주고 지방 영지로 물러났다.</p>
+            <p>당주 이르한에 대해 궁정에 알려진 것은 많지 않다. 조용하고, 절제되어 있으며, 좀처럼 속을 드러내지 않는 인물이라는 평가뿐이다.</p>
+          </div>
+        </div>
+
+        <div class="lore-item" data-idx="5">
+          <div class="lore-head">
+            <span class="lore-file">FILE-005</span>
+            <span class="lore-name">엘프라는 종족</span>
+            <span class="lore-plus">+</span>
+          </div>
+          <div class="lore-body">
+            <p>엘프는 인간보다 훨씬 긴 수명을 가진 장수종이다. 512세의 원로와 24세의 공작이 나란히 서 있어도, 겉모습의 나이 차는 거의 느껴지지 않는다.</p>
+            <p>그만큼 엘프 사회는 "시간"을 인간과 다르게 대한다. 몇 해쯤 지난 감정은 대수롭지 않게 여기지만, 반대로 아주 짧은 순간에 스친 마음 하나가 수십 년을 간다고도 한다. 이르한이 상견례에서 스쳤던 감정을 여태 붙들고 있는 것도, 어쩌면 그런 종족 특유의 시간 감각과 무관하지 않을지 모른다.</p>
+          </div>
+        </div>
+
+        <div class="section-head reveal" style="margin-top:64px;">
+          <div class="section-eyebrow">Locations</div>
+          <div class="section-title">이야기가 머무는 장소들</div>
+        </div>
+        <div class="loc-grid reveal">
+          <div class="loc-card" style="background-image:url('assets/배경_공작저.png');">
+            <div class="loc-cap"><div class="loc-name">셀비에르 공작저</div><div class="loc-desc">이르한과 {user}가 함께 지내는 생활 공간</div></div>
+          </div>
+          <div class="loc-card" style="background-image:url('assets/배경_공작저알현실.png');">
+            <div class="loc-cap"><div class="loc-name">공작저 접견실</div><div class="loc-desc">공식적인 손님을 맞는 자리</div></div>
+          </div>
+          <div class="loc-card" style="background-image:url('assets/배경_왕성알현실.png');">
+            <div class="loc-cap"><div class="loc-name">왕성 알현실</div><div class="loc-desc">왕실의 공식 행사가 열리는 곳</div></div>
+          </div>
+          <div class="loc-card" style="background-image:url('assets/배경_정원.png');">
+            <div class="loc-cap"><div class="loc-name">정원</div><div class="loc-desc">둘만의 사적인 공간, 감정이 자주 흔들리는 곳</div></div>
+          </div>
+          <div class="loc-card" style="background-image:url('assets/배경_숲.png');">
+            <div class="loc-cap"><div class="loc-name">공작저 뒤편 숲</div><div class="loc-desc">포롱이 사는 곳, 이르한의 어린 시절 흔적이 남은 자리</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 인물 ===== -->
+    <section class="panel" id="panel-cast">
+      <div class="hero-band" style="background-image:url('assets/배경_정원.png');">
+        <div class="hero-band-inner">
+          <div class="hero-eyebrow">Cast · 인물록</div>
+          <div class="hero-title">이 결혼을 둘러싼 사람들</div>
+          <p class="hero-desc">카드를 눌러 조금 더 자세한 이야기를 확인해 보세요.</p>
+        </div>
+      </div>
+
+      <div class="section-wrap">
+        <div class="cast-group">
+          <div class="cast-group-title">Main</div>
+          <div class="cast-grid" id="grid-main"></div>
+        </div>
+        <div class="cast-group">
+          <div class="cast-group-title">왕가</div>
+          <div class="cast-grid" id="grid-royal"></div>
+        </div>
+        <div class="cast-group">
+          <div class="cast-group-title">셀비에르가 · 소중한 존재</div>
+          <div class="cast-grid small" id="grid-family"></div>
+        </div>
+        <div class="cast-group">
+          <div class="cast-group-title">궁정 사람들</div>
+          <div class="cast-grid small" id="grid-court"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 시스템 ===== -->
+    <section class="panel" id="panel-system">
+      <div class="section-wrap" style="padding-top:52px;">
+        <div class="sys-hero" style="background-image:url('assets/이르한_서재.png');">
+          <div class="sys-hero-text">
+            <div class="section-eyebrow">System</div>
+            <div class="section-title">빗장 게이지</div>
+            <p>이르한은 완벽한 존댓말과 절제된 태도로 자신을 감싸고 있다. 그 안쪽엔, 상견례에서부터 이미 무너지기 시작한 마음이 있다. 빗장 게이지는 그 겉과 속의 온도차를 보여주는 시스템이다.</p>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <div class="section-eyebrow">Try it</div>
+          <div class="section-title">직접 슬라이더를 움직여보세요</div>
+        </div>
+
+        <div class="gauge-box">
+          <div class="gauge-bg" id="gaugeBg" style="background-image:url('assets/배경_정원.png');"></div>
+          <div class="gauge-content">
+            <div class="gauge-label" id="gaugeStageLabel">빗장이 굳게 잠긴 상태</div>
+            <div class="gauge-hearts" id="gaugeHearts">🖤🖤🖤🖤🖤</div>
+            <div class="gauge-line-wrap">
+              <input type="range" min="0" max="100" value="0" id="gaugeSlider">
+            </div>
+            <div class="gauge-quote" id="gaugeQuote">"…네, 알겠습니다."</div>
+            <div class="gauge-special" id="gaugeSpecial">그가 이만큼 무너진 걸, 아무도 본 적 없다</div>
+            <div class="gauge-note">빗장은 20 단위마다 한 단계씩 열립니다. 아이콘 단계로만 표현되며, 정확한 수치는 알 수 없습니다.</div>
+            <div class="stage-legend">
+              <div class="stage-dot">0-19 완벽한 존댓말</div>
+              <div class="stage-dot">40-59 사족이 늘어남</div>
+              <div class="stage-dot">80-99 존댓말이 흔들림</div>
+              <div class="stage-dot">100 빗장, 완전히 풀림</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ===== 갤러리 ===== -->
+    <section class="panel" id="panel-gallery">
+      <div class="hero-band" style="background-image:url('assets/이르한_노을.png'); background-position:center 65%;">
+        <div class="hero-band-inner">
+          <div class="hero-eyebrow">Gallery · 장면 기록</div>
+          <div class="hero-title">그가 머무는 순간들</div>
+          <p class="hero-desc">이야기 속 이르한을 만나볼 수 있는 장면들. 이미지를 눌러 크게 감상해 보세요.</p>
+        </div>
+      </div>
+      <div class="section-wrap">
+        <div class="section-head reveal">
+          <div class="section-eyebrow">Scenes</div>
+          <div class="section-title">네 개의 장면</div>
+        </div>
+        <div class="gallery-grid reveal">
+          <div class="gallery-item" data-img="assets/이르한_결혼식.png">
+            <img src="assets/이르한_결혼식.png" alt="결혼식" loading="lazy">
+            <div class="gallery-cap"><div class="g-title">결혼식</div><div class="g-sub">모든 것이 시작된 자리</div></div>
+          </div>
+          <div class="gallery-item" data-img="assets/이르한_서재.png">
+            <img src="assets/이르한_서재.png" alt="서재" loading="lazy">
+            <div class="gallery-cap"><div class="g-title">서재</div><div class="g-sub">책을 읽는 조용한 시간</div></div>
+          </div>
+          <div class="gallery-item" data-img="assets/이르한_정원.png">
+            <img src="assets/이르한_정원.png" alt="정원" loading="lazy">
+            <div class="gallery-cap"><div class="g-title">정원</div><div class="g-sub">가장 자주 마음이 흔들리는 곳</div></div>
+          </div>
+          <div class="gallery-item" data-img="assets/이르한_노을.png">
+            <img src="assets/이르한_노을.png" alt="노을" loading="lazy">
+            <div class="gallery-cap"><div class="g-title">노을</div><div class="g-sub">아무도 모르는, 가장 편안한 얼굴</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span class="accent-num">Silvana</span> · 엘프 공작님이 제게 반했다고요? · 냥냥외계인 제작
+  </footer>
+</div>
+
+<!-- ================= CHAR MODAL ================= -->
+<div id="char-modal">
+  <div class="modal-card">
+    <button class="modal-close" id="modalClose">✕</button>
+    <img class="modal-img" id="modalImg" src="" alt="">
+    <div class="modal-body">
+      <div class="modal-name" id="modalName"></div>
+      <div class="modal-meta" id="modalMeta"></div>
+      <div class="modal-desc" id="modalDesc"></div>
+      <div class="modal-quote" id="modalQuote"></div>
+    </div>
+  </div>
+</div>
+
+<div id="lightbox">
+  <button class="lightbox-close" id="lightboxClose">✕</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<script>
+/* ---------------- 인물 데이터 ---------------- */
+const CAST = {
+  main: [
+    { id:'irhan', name:'이르한 반 셀비에르', tag:'셀비에르 공작가 당주', img:'assets/이르한_기본.png',
+      meta:'24세 · 남 · 엘프 · INTJ · 5w4',
+      desc:'셀비에르 공작가의 당주. 절제되고 논리적인 성격으로 궁정에 알려져 있다. {user}와의 결혼도 "의무로 받아들인 척" 냉정하게 대하지만, 상견례에서 이미 한 번 무너진 적이 있다는 사실은 아무도 모른다.',
+      quote:'"…아니, 그게 아니라…" — 그가 좀처럼 끝맺지 못하는 문장들이 있다.' , main:true },
+  ],
+  royal: [
+    { id:'selena', name:'셀레나 여왕', tag:'실바나 왕국 통치자', img:'assets/셀레나_기본.png',
+      meta:'221세 · 여 · 엘프 · INFJ · 1w2',
+      desc:'실바나 왕국의 단독 통치자이자 개방 정책을 직접 추진한 장본인. {user}에게도 우호적인 태도를 보인다. 겉으로는 공작가에 대한 전적인 신뢰만을 드러낸다.',
+      quote:'"이 결혼이 우리 왕국의 첫걸음이 되어줄 거예요."' },
+    { id:'theoren', name:'테오렌 왕세자', tag:'셀레나 여왕의 장남', img:'assets/테오렌_기본.png',
+      meta:'63세 · 남 · 엘프 · ENFJ · 7w6',
+      desc:'현 왕세자. 밝고 장난기 많은 인상으로 궁정의 정치적 긴장을 유머로 풀어내는 재주가 있다. 이르한과는 대외적으로 무관한 사이로 알려져 있지만, {user}에게는 유독 호의적이고 종종 짓궂게 놀리기도 한다.',
+      quote:'"공작, 표정이 또 그러네. 뭐 숨기는 거 있어?"' },
+  ],
+  family: [
+    { id:'duke', name:'셀비에르 공작', tag:'전(前) 당주', img:'assets/셀비에르공작_기본.png',
+      meta:'189세 · 남 · 엘프 · ISTJ · 9w1',
+      desc:'전 셀비에르 공작가 당주. 최근 이르한에게 작위를 물려주고 지방 영지에서 은퇴 생활을 하고 있어 이야기에는 거의 직접 등장하지 않는다.',
+      quote:'' },
+    { id:'duchess', name:'셀비에르 공작부인', tag:'전(前) 당주 부인', img:'assets/셀비에르공작부인_기본.png',
+      meta:'176세 · 여 · 엘프 · ISFJ · 2w1',
+      desc:'공작과 함께 지방 영지에서 조용히 지내고 있다. 이르한을 누구보다 가까이에서 지켜봐 온 인물.',
+      quote:'' },
+    { id:'porong', name:'포롱', tag:'공작저 뒤편 숲의 정령', img:'assets/포롱_기본.png',
+      meta:'나이 불명 · 무성 · 정령 · ENFP · 9w8',
+      desc:'셀비에르 공작저 뒤편 숲에 사는 작은 빛의 정령. 이르한과 어릴 때부터 함께 자란 소꿉친구로, 이르한의 어린 시절을 유일하게 곁에서 지켜본 존재다. {user}에게 이르한의 옛날 얘기를 슬쩍 흘리기도 하는 눈치인데...',
+      quote:'"이르한, 옛날엔 안 그랬는데 말이야~"' },
+    { id:'lira', name:'리라', tag:'공작저 시녀장', img:'assets/리라_기본.png',
+      meta:'58세 · 여 · 엘프 · ISTJ · 6w5',
+      desc:'셀비에르 공작저의 시녀장. {user}가 낯선 궁정 생활에 적응할 수 있도록 돕는 실무형 조력자이자, 종종 유용한 정보를 넌지시 전해주는 창구 역할을 한다.',
+      quote:'' },
+  ],
+  court: [
+    { id:'gernhart', name:'게른하르트 원로', tag:'개방 반대파 대표격', img:'assets/게른하르트_기본.png',
+      meta:'512세 · 남 · 엘프 · INTJ · 1w9',
+      desc:'실바나 최고령 원로 중 한 명. 개방 정책에 여전히 회의적인 입장을 대표하는 인물로, 궁정 회랑에서 종종 날 선 시선을 마주치게 된다.',
+      quote:'' },
+  ],
+};
+
+function cardHTML(c){
+  return `<div class="cast-card" data-id="${c.id}">
+    ${c.main ? '<span class="cast-main-badge">MAIN</span>' : ''}
+    <img src="${c.img}" alt="${c.name}" loading="lazy">
+    <div class="cast-info">
+      <div class="cast-name">${c.name}</div>
+      <div class="cast-tag">${c.tag}</div>
+    </div>
+  </div>`;
+}
+document.getElementById('grid-main').innerHTML = CAST.main.map(cardHTML).join('');
+document.getElementById('grid-royal').innerHTML = CAST.royal.map(cardHTML).join('');
+document.getElementById('grid-family').innerHTML = CAST.family.map(cardHTML).join('');
+document.getElementById('grid-court').innerHTML = CAST.court.map(cardHTML).join('');
+
+const ALL_CAST = [...CAST.main, ...CAST.royal, ...CAST.family, ...CAST.court];
+const modal = document.getElementById('char-modal');
+document.querySelectorAll('.cast-card').forEach(card=>{
+  card.addEventListener('click', ()=>{
+    const c = ALL_CAST.find(x=>x.id===card.dataset.id);
+    document.getElementById('modalImg').src = c.img;
+    document.getElementById('modalName').textContent = c.name;
+    document.getElementById('modalMeta').textContent = c.meta;
+    document.getElementById('modalDesc').textContent = c.desc;
+    const q = document.getElementById('modalQuote');
+    if(c.quote){ q.style.display='block'; q.textContent = c.quote; } else { q.style.display='none'; }
+    modal.classList.add('show');
+  });
+});
+document.getElementById('modalClose').addEventListener('click', ()=> modal.classList.remove('show'));
+modal.addEventListener('click', e=>{ if(e.target===modal) modal.classList.remove('show'); });
+
+/* ---------------- Gate ---------------- */
+const gate = document.getElementById('gate');
+const site = document.getElementById('site');
+document.getElementById('enterBtn').addEventListener('click', ()=>{
+  gate.classList.add('hidden');
+  setTimeout(()=> site.classList.add('show'), 200);
+});
+
+/* ---------------- Gate 꽃잎 연출 ---------------- */
+const petalWrap = document.getElementById('gatePetals');
+const PETAL_CHARS = ['❁','✿','❀'];
+for(let i=0;i<22;i++){
+  const p = document.createElement('span');
+  p.className='petal';
+  p.textContent = PETAL_CHARS[i % PETAL_CHARS.length];
+  p.style.left = Math.random()*100 + '%';
+  p.style.fontSize = (12 + Math.random()*14) + 'px';
+  p.style.setProperty('--drift', (Math.random()*80-40)+'px');
+  p.style.animationDuration = (9 + Math.random()*10) + 's';
+  p.style.animationDelay = (Math.random()*10) + 's';
+  petalWrap.appendChild(p);
+}
+
+/* ---------------- Nav Tabs + Mobile Burger ---------------- */
+const navTabs = document.getElementById('navTabs');
+const navBurger = document.getElementById('navBurger');
+navBurger.addEventListener('click', ()=>{
+  navBurger.classList.toggle('open');
+  navTabs.classList.toggle('open');
+});
+document.querySelectorAll('.nav-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+    navTabs.classList.remove('open');
+    navBurger.classList.remove('open');
+    revealCheck();
+  });
+});
+
+/* ---------------- 갤러리 라이트박스 ---------------- */
+const lightbox = document.getElementById('lightbox');
+document.querySelectorAll('.gallery-item').forEach(item=>{
+  item.addEventListener('click', ()=>{
+    document.getElementById('lightboxImg').src = item.dataset.img;
+    lightbox.classList.add('show');
+  });
+});
+document.getElementById('lightboxClose').addEventListener('click', ()=> lightbox.classList.remove('show'));
+lightbox.addEventListener('click', e=>{ if(e.target===lightbox) lightbox.classList.remove('show'); });
+
+/* ---------------- 스크롤 리빌 (+ stagger) ---------------- */
+document.querySelectorAll('.lore-item, .gauge-box, .sys-hero, .loc-card, .section-head').forEach(el=> el.classList.add('reveal'));
+document.querySelectorAll('.cast-group, .gallery-grid').forEach(group=>{
+  const items = group.querySelectorAll('.cast-card, .gallery-item');
+  items.forEach((el,i)=>{ el.style.transitionDelay = (i*70) + 'ms'; });
+});
+const revealObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){ entry.target.classList.add('in'); }
+  });
+}, { threshold:0.12 });
+function revealCheck(){
+  document.querySelectorAll('.reveal:not(.in), .cast-card:not(.in), .gallery-item:not(.in)').forEach(el=> revealObserver.observe(el));
+}
+revealCheck();
+
+/* ---------------- 히어로 배너 패럴랙스 ---------------- */
+const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(!prefersReduced){
+  window.addEventListener('scroll', ()=>{
+    document.querySelectorAll('.panel.active .hero-band-inner').forEach(el=>{
+      const band = el.closest('.hero-band');
+      const rect = band.getBoundingClientRect();
+      if(rect.bottom > 0 && rect.top < window.innerHeight){
+        el.style.transform = `translateY(${rect.top * 0.12}px)`;
+      }
+    });
+  }, { passive:true });
+}
+
+/* ---------------- Lore Accordion ---------------- */
+document.querySelectorAll('.lore-item').forEach(item=>{
+  item.querySelector('.lore-head').addEventListener('click', ()=>{
+    item.classList.toggle('open');
+  });
+});
+
+/* ---------------- 빗장 게이지 슬라이더 ---------------- */
+const STAGES = [
+  { max:19,  hearts:'🖤🖤🖤🖤🖤', label:'빗장이 굳게 잠긴 상태', quote:'"…네, 알겠습니다."' },
+  { max:39,  hearts:'❤️🖤🖤🖤🖤', label:'아주 가끔 미세한 흔들림', quote:'"…딱히, 별건 아닙니다."' },
+  { max:59,  hearts:'❤️❤️🖤🖤🖤', label:'사족이 늘고, 시선이 머무름', quote:'"…아니, 그게 아니라…"' },
+  { max:79,  hearts:'❤️❤️❤️🖤🖤', label:'존댓말이 종종 흐트러짐', quote:'"이런 것도… 처음이라서."' },
+  { max:99,  hearts:'❤️❤️❤️❤️🖤', label:'방어막이 거의 붕괴 직전', quote:'"…왜 자꾸, 그렇게 쳐다보십니까."' },
+  { max:100, hearts:'❤️❤️❤️❤️❤️', label:'빗장, 완전히 풀림', quote:'"그건... 아직은 말할 수 없습니다."' },
+];
+const slider = document.getElementById('gaugeSlider');
+const heartsEl = document.getElementById('gaugeHearts');
+const labelEl = document.getElementById('gaugeStageLabel');
+const quoteEl = document.getElementById('gaugeQuote');
+const specialEl = document.getElementById('gaugeSpecial');
+const gaugeBg = document.getElementById('gaugeBg');
+
+function updateGauge(v){
+  const stage = STAGES.find(s=> v <= s.max);
+  heartsEl.textContent = stage.hearts;
+  labelEl.textContent = stage.label;
+  quoteEl.classList.add('blur');
+  setTimeout(()=>{
+    quoteEl.textContent = stage.quote;
+    quoteEl.classList.remove('blur');
+  }, 180);
+  gaugeBg.style.opacity = 0.16 + (v/100)*0.26;
+  gaugeBg.style.filter = `grayscale(${1 - v/100})`;
+  if(v >= 100){ specialEl.classList.add('show'); }
+  else{ specialEl.classList.remove('show'); }
+}
+slider.addEventListener('input', e=> updateGauge(Number(e.target.value)));
+updateGauge(0);
+</script>
+</body>
+</html>
