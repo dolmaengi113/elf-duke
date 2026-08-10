@@ -194,29 +194,23 @@
   /* ---------- 인물 ---------- */
   .cast-group{ margin-bottom:56px; }
   .cast-group-title{ font-size:13px; letter-spacing:0.2em; color:var(--sage); text-transform:uppercase; margin-bottom:18px; font-weight:600; }
-  .cast-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:18px; }
-  .cast-grid.small{ grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); }
+  .cast-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:18px; }
   .cast-card{
     position:relative; border-radius:6px; overflow:hidden; cursor:pointer;
-    aspect-ratio:3/4; box-shadow:var(--shadow); transition:transform .4s ease, box-shadow .4s ease;
+    aspect-ratio:3/1; box-shadow:var(--shadow); transition:transform .4s ease, box-shadow .4s ease;
     border:1px solid var(--line);
     opacity:0; transform:translateY(24px) scale(0.97);
   }
   .cast-card.in{ opacity:1; transform:translateY(0) scale(1); transition:opacity .6s ease, transform .6s cubic-bezier(.2,.8,.3,1); }
-  .cast-grid.small .cast-card{ aspect-ratio:1/1; }
-  .cast-card:hover{ transform:translateY(-7px) rotate(-0.6deg); box-shadow:0 26px 50px rgba(60,55,40,0.2); }
+  .cast-card:hover{ transform:translateY(-5px); box-shadow:0 22px 44px rgba(60,55,40,0.2); }
   .cast-card img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform .5s ease; }
-  .cast-card:hover img{ transform:scale(1.06); }
-  .cast-card::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(20,20,15,0) 45%, rgba(20,20,15,0.82) 100%); }
-  .cast-info{ position:absolute; left:0; right:0; bottom:0; z-index:2; padding:14px 16px; color:#fdf9ef; }
-  .cast-name{ font-family:'Noto Serif KR',serif; font-weight:700; font-size:17px; }
-  .cast-grid.small .cast-name{ font-size:14px; }
-  .cast-tag{ font-size:11.5px; color:var(--gold-bright); margin-top:3px; letter-spacing:0.02em; }
+  .cast-card:hover img{ transform:scale(1.03); }
   .cast-main-badge{
     position:absolute; top:12px; left:12px; z-index:3;
     font-size:10.5px; letter-spacing:0.16em; padding:5px 11px; border-radius:999px;
     background:rgba(253,249,239,0.92); color:var(--sage-deep); font-weight:700;
   }
+
 
   /* modal */
   #char-modal{
@@ -361,8 +355,7 @@
     .gate-title{ font-size:26px; }
     .hero-band{ min-height:280px; height:38vh; }
     .section-wrap{ padding:52px 6vw 80px; }
-    .cast-grid{ grid-template-columns:repeat(2,1fr); }
-    .cast-grid.small{ grid-template-columns:repeat(3,1fr); }
+    .cast-grid{ grid-template-columns:repeat(2,1fr); gap:12px; }
     .gallery-grid{ grid-template-columns:1fr; }
     .loc-grid{ grid-template-columns:repeat(2,1fr); }
     .gauge-box{ padding:34px 6vw 40px; }
@@ -374,7 +367,7 @@
   }
 
   @media (max-width:420px){
-    .cast-grid.small{ grid-template-columns:repeat(2,1fr); }
+    .cast-grid{ grid-template-columns:1fr; }
     .gate-eyebrow{ font-size:12px; letter-spacing:0.24em; }
   }
 
@@ -532,7 +525,7 @@
       <div class="section-wrap">
         <div class="cast-group">
           <div class="cast-group-title">Main</div>
-          <div class="cast-grid" id="grid-main"></div>
+          <div class="cast-grid" id="grid-main" style="grid-template-columns:1fr;"></div>
         </div>
         <div class="cast-group">
           <div class="cast-group-title">왕가</div>
@@ -540,11 +533,11 @@
         </div>
         <div class="cast-group">
           <div class="cast-group-title">셀비에르가 · 소중한 존재</div>
-          <div class="cast-grid small" id="grid-family"></div>
+          <div class="cast-grid" id="grid-family"></div>
         </div>
         <div class="cast-group">
           <div class="cast-group-title">궁정 사람들</div>
-          <div class="cast-grid small" id="grid-court"></div>
+          <div class="cast-grid" id="grid-court"></div>
         </div>
       </div>
     </section>
@@ -695,10 +688,6 @@ function cardHTML(c){
   return `<div class="cast-card" data-id="${c.id}">
     ${c.main ? '<span class="cast-main-badge">MAIN</span>' : ''}
     <img src="${c.img}" alt="${c.name}" loading="lazy">
-    <div class="cast-info">
-      <div class="cast-name">${c.name}</div>
-      <div class="cast-tag">${c.tag}</div>
-    </div>
   </div>`;
 }
 document.getElementById('grid-main').innerHTML = CAST.main.map(cardHTML).join('');
